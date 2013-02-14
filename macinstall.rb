@@ -36,6 +36,7 @@ class MacInstall
     result = %x[hdiutil attach "#{@dmg}" -mountpoint #{@mounted_path}]
     unless $?.success?
       puts "KO"
+      puts result
       raise "Unable to mount dmg file '#{@dmg}'"
     end
     puts "OK"
@@ -47,6 +48,7 @@ class MacInstall
     result = %x[hdiutil unmount "#{@mounted_path}"]
     unless $?.success?
       puts "KO"
+      puts result
       raise "Unable to unmount dmg file '#{@dmg}'"
     end
     puts "OK"
@@ -63,10 +65,22 @@ class MacInstall
   end
 
   def install_app app
-    puts "  Install '#{@filename}\t\t#{File.basename(app)}"
+    print "  Install '#{@filename}\t\t#{File.basename(app)}\t"
+    result = %x[sudo cp -R "#{app}" /Applications]
+    unless $?.success?
+      puts "KO"
+      puts result
+      raise "Unable to install '#{app}'"
+    end
   end
 
   def install_pkg pkg
-    puts "  Install '#{@filename}\t\t#{File.basename(app)}"
+    print "  Install '#{@filename}\t\t#{File.basename(pkg)}\t"
+    result = %x[sudo installer -package "#{pkg}" -target "/Volumes/Macintosh HD"]
+    unless $?.success?
+      puts "KO"
+      puts result
+      raise "Unable to install '#{pkg}'"
+    end
   end
 end
