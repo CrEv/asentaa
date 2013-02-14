@@ -12,6 +12,8 @@ class MacInstall
 
   def install
     begin
+      puts "Installation of '#{@filename}'"
+      puts ""
       @mounted_path = Dir.mktmpdir
       mount_dmg
       
@@ -30,20 +32,24 @@ class MacInstall
   end
 
   def mount_dmg
+    print "  Mount   '#{@filename}'\t\t"
     result = %x[hdiutil attach "#{@dmg}" -mountpoint #{@mounted_path}]
     unless $?.success?
+      puts "KO"
       raise "Unable to mount dmg file '#{@dmg}'"
     end
-    puts result
+    puts "OK"
   end
 
   def unmount_dmg
     return if @mounted_path.nil?
+    print "  Unmount '#{@filename}'\t\t"
     result = %x[hdiutil unmount "#{@mounted_path}"]
     unless $?.success?
+      puts "KO"
       raise "Unable to unmount dmg file '#{@dmg}'"
     end
-    puts result
+    puts "OK"
   end
 
   def do_install
@@ -57,10 +63,10 @@ class MacInstall
   end
 
   def install_app app
-    puts "Install app #{app}"
+    puts "  Install '#{@filename}\t\t#{File.basename(app)}"
   end
 
   def install_pkg pkg
-    puts "Install pkg #{pkg}"
+    puts "  Install '#{@filename}\t\t#{File.basename(app)}"
   end
 end
