@@ -4,7 +4,7 @@ require "tmpdir"
 class MacInstall
   def initialize dmg
     @dmg = dmg
-    @filename = File.basename @dmg, File.extname @dmg
+    @filename = File.basename(@dmg, File.extname(@dmg))
     @mounted_path = nil
 
     raise_error_if_not_exists
