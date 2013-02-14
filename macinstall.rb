@@ -1,4 +1,5 @@
 require "fileutils"
+require "tmpdir"
 
 class MacInstall
   def initialize dmg
