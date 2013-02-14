@@ -1,65 +1,37 @@
-require "fileutils"
-require "tmpdir"
+require "./dmg.rb"
 
 class MacInstall
   def initialize dmg
     @dmg = dmg
     @filename = File.basename(@dmg, File.extname(@dmg))
     @mounted_path = nil
-
-    raise_error_if_not_exists
   end
 
   def install
     begin
       puts "Installation of '#{@filename}'"
       puts ""
-      @mounted_path = Dir.mktmpdir
-      mount_dmg
-      
-      do_install
+
+      dmg = Dmg.new @dmg
+      print "  Mount   '#{@filename}'\t\t"
+      dmg.mount
+      puts "OK"
+
+      do_install dmg.path
     ensure
-      unmount_dmg
-      FileUtils.remove_entry_secure @mounted_path
+      print "  Unmount '#{@filename}'\t\t"
+      dmg.unmount
+      puts "OK"
     end
   end
 
   private
-  def raise_error_if_not_exists
-    unless File.exists? @dmg
-      raise "Unable to find dmg file '#{@dmg}'"
-    end
-  end
-
-  def mount_dmg
-    print "  Mount   '#{@filename}'\t\t"
-    result = %x[hdiutil attach "#{@dmg}" -mountpoint #{@mounted_path}]
-    unless $?.success?
-      puts "KO"
-      puts result
-      raise "Unable to mount dmg file '#{@dmg}'"
-    end
-    puts "OK"
-  end
-
-  def unmount_dmg
-    return if @mounted_path.nil?
-    print "  Unmount '#{@filename}'\t\t"
-    result = %x[hdiutil unmount "#{@mounted_path}"]
-    unless $?.success?
-      puts "KO"
-      puts result
-      raise "Unable to unmount dmg file '#{@dmg}'"
-    end
-    puts "OK"
-  end
-
-  def do_install
+  def do_install path
     # check files inside mounted path
-    Dir.glob(File.join(@mounted_path, "*.app")).each do |app|
+    Dir.glob(File.join(path, "*.app")).each do |app|
       install_app app
     end
-    Dir.glob(File.join(@mounted_path, "*.pkg")).each do |pkg|
+    Dir.glob(File.join(path, "*.pkg")).each do |pkg|
       install_pkg pkg
     end
   end
