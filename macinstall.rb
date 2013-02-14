@@ -39,7 +39,7 @@ class MacInstall
 
   def unmount_dmg
     return if @mounted_path.nil?
-    result = %[hdiutil umount "#{@mounted_path}"]
+    result = %x[hdiutil unmount "#{@mounted_path}"]
     unless $?.success?
       raise "Unable to unmount dmg file '#{@dmg}'"
     end
